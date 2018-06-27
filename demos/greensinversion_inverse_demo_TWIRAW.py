@@ -33,7 +33,7 @@ x0=0.0
 y0=0.0
 
 # Spatial pixel size must be measured from the thermal image sequence
-dx=100.0e-3/244  # pixel size, in mm
+dx=100.0e-3/244  # pixel size, in m
 dy=100.0e-3/244
 
 # Apply spatial downsampling to keep inversion complexity under control
@@ -110,10 +110,10 @@ flashtime=data_t0+flashframe*dt
 # (the missing region is interpolated from the valid
 # data prior to inversion)
 
-data[:,:110,:]=np.NaN
-data[:,340:,:]=np.NaN
-data[:,:,:205]=np.NaN
-data[:,:,445:]=np.NaN
+#data[:,:110,:]=np.NaN
+#data[:,340:,:]=np.NaN
+#data[:,:,:205]=np.NaN
+#data[:,:,445:]=np.NaN
 
 
 (inversionprob,
