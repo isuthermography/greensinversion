@@ -958,7 +958,7 @@ def plotconcreteinversemovie(startfignum,outdirhref,outfilenametemplate,saturati
     return (startfignum+concreteinverse.shape[0],plots,images,plothrefs,depths)
 
 
-def define_curved_inversion(gi_params,gi_grid,obj,curvmat_tile,stepsizemat_tile,curvmat_hires,stepsizemat_hires,curvmat_sizeu,curvmat_sizev,num_sources_y,num_sources_x):
+def define_curved_inversion(gi_params,gi_grid,obj,curvmat_tile,stepsizemat_tile,curvmat_hires,stepsizemat_hires,curvmat_sizeu,curvmat_sizev,num_sources_y,num_sources_x,singlestep=False):
     (rho,c,alphaz,alphaxy,dy,dx,maxy,maxx,t0,dt,nt,reflectors,
      trange,greensconvolution_params) = gi_params
     (ny,nx,y,x,ygrid,xgrid,y_bnd,x_bnd) = gi_grid
