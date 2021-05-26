@@ -61,6 +61,10 @@ nz=16
                                                     dx,36.0e-3)
 
 
+# number of top-layer sources in each tile
+num_sources_y=2
+num_sources_x=2 
+
 
 #t0=0.01
 # t0 bumped up because finite difference doesn't work too well
@@ -146,7 +150,7 @@ greensconvolution_params=read_greensconvolution()
 # to go still shallower. 
 
 
-(rowscaling,flashsourcecolumnscaling,flashsourcevecs,reflectorcolumnscaling,reflectorsourcevecs,depths,tstars,conditions,prevconditions,prevscaledconditions)=greensinversion.build_all_source_vecs(greensconvolution_params,dy,dx,ygrid[0,:,:],xgrid[0,:,:],y_bnd,x_bnd,rho,c,kz,ky,kx,dt,trange,reflectors)
+(rowscaling,flashsourcecolumnscaling,flashsourcevecs,reflectorcolumnscaling,reflectorsourcevecs,depths,tstars,conditions,prevconditions,prevscaledconditions)=greensinversion.build_all_source_vecs(greensconvolution_params,dy,dx,ygrid[0,:,:],xgrid[0,:,:],y_bnd,x_bnd,rho,c,kz,ky,kx,dt,trange,reflectors,num_sources_y=num_sources_y,num_sources_x=num_sources_x)
 
 
 
@@ -238,23 +242,26 @@ Tnoisy=T+np.random.randn(*T.shape)*.022 # 22 mK NETD
 # loglog(trange+dt/2,T[20,20,:])
 # imshow(T[:,:,200]
 
+# Saturation check not technically necessary on simulated data 
+(saturation_fraction,saturation_map)=greensinversion.saturationcheck(Tnoisy,0)
+
 
 (inversioncoeffs,residual,errs,tikparams)=greensinversion.performinversionsteps(rowselects,inversions,inversionsfull,inverses,nresults,Tnoisy,tikparam)
 
-(fig,subplots,images)=greensinversion.plotabstractinverse(5,2,3,inversioncoeffs,reflectors,-10000.0,20000.0,y_bnd,x_bnd)
+(fig,subplots,images)=greensinversion.plotabstractinverse(5,2,3,inversioncoeffs,reflectors,-10000.0,20000.0,y_bnd,x_bnd,num_sources_y,num_sources_x)
 
-concreteinverse=greensinversion.buildconcreteinverse(inversioncoeffs,reflectors,ygrid[0,:,:],xgrid[0,:,:],y_bnd,x_bnd,ny,nx)
-(cfig,csubplots,cimages)=greensinversion.plotconcreteinverse(6,2,3,concreteinverse,reflectors,-10000.0,20000.0,y_bnd,x_bnd)
+concreteinverse=greensinversion.buildconcreteinverse(inversioncoeffs,reflectors,ygrid[0,:,:],xgrid[0,:,:],y_bnd,x_bnd,ny,nx,num_sources_y,num_sources_x)
+(cfig,csubplots,cimages)=greensinversion.plotconcreteinverse(6,2,3,saturation_map,concreteinverse,reflectors,-10000.0,20000.0,y_bnd,x_bnd,num_sources_y,num_sources_x)
 
 
 (ss_inversioncoeffs,ss_residual,ss_errs,ss_tikparams)=greensinversion.performinversionsteps(ss_rowselects,ss_inversions,ss_inversionsfull,ss_inverses,ss_nresults,Tnoisy,tikparam)
 
-(ss_fig,ss_subplots,ss_images)=greensinversion.plotabstractinverse(7,2,3,ss_inversioncoeffs,reflectors,-10000.0,20000.0,y_bnd,x_bnd)
+(ss_fig,ss_subplots,ss_images)=greensinversion.plotabstractinverse(7,2,3,ss_inversioncoeffs,reflectors,-10000.0,20000.0,y_bnd,x_bnd,num_sources_y,num_sources_x)
 pl.savefig("/tmp/greensinversion_basic_singlestep_thininsulatinglayer_right_deephole_left_abstract.png")
 
-ss_concreteinverse=greensinversion.buildconcreteinverse(ss_inversioncoeffs,reflectors,ygrid[0,:,:],xgrid[0,:,:],y_bnd,x_bnd,ny,nx)
+ss_concreteinverse=greensinversion.buildconcreteinverse(ss_inversioncoeffs,reflectors,ygrid[0,:,:],xgrid[0,:,:],y_bnd,x_bnd,ny,nx,num_sources_y,num_sources_x)
 
-(ss_cfig,ss_csubplots,ss_cimages)=greensinversion.plotconcreteinverse(8,2,3,ss_concreteinverse,reflectors,-10000.0,20000.0,y_bnd,x_bnd)
+(ss_cfig,ss_csubplots,ss_cimages)=greensinversion.plotconcreteinverse(8,2,3,saturation_map,ss_concreteinverse,reflectors,-10000.0,20000.0,y_bnd,x_bnd,num_sources_y,num_sources_x)
 
 
 pl.show()

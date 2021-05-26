@@ -178,7 +178,7 @@ def heatsim_calc(ny,nx,dz,dx,dy,
     fullstate=np.zeros((nz_refine,ny,nx),dtype='d')
     for tcnt in range(hs2trange.shape[0]):
         curt=hs2trange[tcnt]-dt/2.0
-        print "t=%f" % (curt)
+        print("t=%f" % (curt))
         fullstate=heatsim2.run_adi_steps(ADI_params,ADI_steps,curt,dt,fullstate,volumetric_elements,volumetric)
         T[tcnt,:,:]=fullstate[0,:,:] # extract top layer
         pass

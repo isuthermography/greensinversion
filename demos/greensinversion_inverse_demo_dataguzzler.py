@@ -63,6 +63,10 @@ nz=16
 
 z_bnd=np.arange(nz+1,dtype='d')*dz  # z boundary starts at zero
 
+# number of top-layer sources in each tile
+num_sources_y=2
+num_sources_x=2 
+
 
 
 #t0=0.01
@@ -152,7 +156,7 @@ greensconvolution_params=read_greensconvolution()
 
 
 print("Building source vecs")
-(rowscaling,flashsourcecolumnscaling,flashsourcevecs,reflectorcolumnscaling,reflectorsourcevecs,depths,tstars,conditions,prevconditions,prevscaledconditions)=greensinversion.build_all_source_vecs(greensconvolution_params,dy,dx,ygrid,xgrid,y_bnd,x_bnd,rho,c,kz,ky,kx,dt,trange,reflectors)
+(rowscaling,flashsourcecolumnscaling,flashsourcevecs,reflectorcolumnscaling,reflectorsourcevecs,depths,tstars,conditions,prevconditions,prevscaledconditions)=greensinversion.build_all_source_vecs(greensconvolution_params,dy,dx,ygrid,xgrid,y_bnd,x_bnd,rho,c,kz,ky,kx,dt,trange,reflectors,num_sources_y=num_sources_y,num_sources_x=num_sources_x)
 
 
 
@@ -245,6 +249,16 @@ assert(TStep==dt)
 assert(bases[2][startframe]-flashtrigtime==t0)  # Start time matches
 assert(bases[2][startframe:].shape[0]==nt) # Number of frames match
 
+# Perform saturation check
+(saturation_fraction,saturation_map)=greensinversion.saturationcheck(wfmdict[channel].data.transpose((2,1,0)),startframe)
+    
+if saturation_fraction > .2: 
+    raise ValueError("greensinversion_inverse_demo_dataguzzler: ERROR: %.1f%% of pixels are saturated at least once beyond start frame!" % (saturation_fraction*100.0))
+if saturation_fraction > .02:
+    sys.stderr.write("greensinversion_inverse_demo_dataguzzler: WARNING: %.1f%% of pixels are saturated at least once beyond start frame!\n" % (saturation_fraction*100.0))
+    pass
+
+
 # Break image, stored in wfmdict[channel].data, into tiles of ny*nx pixels, perform inversion on each tile
 (minyminx_corners,yranges,xranges,contributionprofiles)=greensinversion.build_tiled_rectangle(ny,nx,dy,dx,reflectors,wfmdict[channel].data.transpose((2,1,0)))
                                                                                               
@@ -261,7 +275,7 @@ for tile_idx in range(len(minyminx_corners)):
     (inversioncoeffs,residual,errs,tikparams)=greensinversion.performinversionsteps(rowselects,inversions,inversionsfull,inverses,nresults,wfmdict[channel].data[xidx:(xidx+nx),yidx:(yidx+ny),startframe:].transpose((2,1,0)),tikparam) # transpose to convert dataguzzler axis ordering (x,y,t) to greensinversion ordering (t,y,x)
 
     # Build a concrete reconstruction of the buried heat sources from the inversion coefficients
-    concreteinverse=greensinversion.buildconcreteinverse(inversioncoeffs,reflectors,ygrid,xgrid,y_bnd,x_bnd,ny,nx)
+    concreteinverse=greensinversion.buildconcreteinverse(inversioncoeffs,reflectors,ygrid,xgrid,y_bnd,x_bnd,ny,nx,num_sources_y,num_sources_x)
     # concreteinverse is (len(reflectors)+1,ny,nx)... first layer is surface
 
     # accumulate weighted contributions of this tile to full inverse
@@ -278,7 +292,7 @@ for tile_idx in range(len(minyminx_corners)):
     (ss_inversioncoeffs,ss_residual,errs,ss_tikparams)=greensinversion.performinversionsteps(ss_rowselects,ss_inversions,ss_inversionsfull,ss_inverses,ss_nresults,wfmdict[channel].data[xidx:(xidx+nx),yidx:(yidx+ny),startframe:].transpose((2,1,0)),None) # transpose to convert dataguzzler axis ordering (x,y,t) to greensinversion ordering (t,y,x)
 
     # Build a concrete reconstruction of the buried heat sources from the inversion coefficients        
-    ss_concreteinverse=greensinversion.buildconcreteinverse(ss_inversioncoeffs,reflectors,ygrid,xgrid,y_bnd,x_bnd,ny,nx)
+    ss_concreteinverse=greensinversion.buildconcreteinverse(ss_inversioncoeffs,reflectors,ygrid,xgrid,y_bnd,x_bnd,ny,nx,num_sources_y,num_sources_x)
     # concreteinverse is (len(reflectors)+1,ny,nx)... first layer is surface
     
     # ... accumulate contributions of each tile to full inverse
@@ -286,9 +300,9 @@ for tile_idx in range(len(minyminx_corners)):
     pass
 
 
-(fig,subplots,images)=greensinversion.plotconcreteinverse(5,2,3,fullinverse,reflectors,-10000.0,30000.0,y_bnd,x_bnd)
+(fig,subplots,images)=greensinversion.plotconcreteinverse(5,2,3,fullinverse,reflectors,-10000.0,30000.0,y_bnd,x_bnd,num_sources_y,num_sources_x)
 
-(ss_fig,ss_subplots,ss_images)=greensinversion.plotconcreteinverse(6,2,3,ss_fullinverse,reflectors,-10000.0,30000.0,y_bnd,x_bnd)
+(ss_fig,ss_subplots,ss_images)=greensinversion.plotconcreteinverse(6,2,3,ss_fullinverse,reflectors,-10000.0,30000.0,y_bnd,x_bnd,num_sources_y,num_sources_x)
 
 pl.show()
 
