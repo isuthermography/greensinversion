@@ -12,7 +12,7 @@ def RAWfile_ReadHeaderLine(fh):
     # to indicate header is over
     
     byte=fh.read(1)
-    accum=""
+    accum=b""
     while ord(byte) != 0 and byte!='\x0a':
         accum+=byte
         byte=fh.read(1)
@@ -28,7 +28,7 @@ def RAWfile_ReadHeaderLine(fh):
 def ReadRAWHeader(fh):
     formatline=RAWfile_ReadHeaderLine(fh)
 
-    assert(formatline=="EchoTherm Raw Format 4.0") # Only tested on v4.0 (?)
+    assert(formatline==b"EchoTherm Raw Format 4.0") # Only tested on v4.0 (?)
     
     # Read 'Parameter=Value' pairs
     Params=collections.OrderedDict()
@@ -36,11 +36,11 @@ def ReadRAWHeader(fh):
     HeaderLine=RAWfile_ReadHeaderLine(fh)
     
     while HeaderLine is not None:
-        assert('=' in HeaderLine)
+        assert(b'=' in HeaderLine)
 
         (ParamName,ParamValue)=HeaderLine.split('=',1)
-        Params[ParamName]=ParamValue
-
+        Params[ParamName.decode('utf-8')]=ParamValue.decode('utf-8')
+        
         HeaderLine=RAWfile_ReadHeaderLine(fh)
         pass
     
