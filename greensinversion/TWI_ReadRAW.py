@@ -49,7 +49,7 @@ def ReadRAWHeader(fh):
 def ReadRAW(filepath):
     filesize=os.path.getsize(filepath)
 
-    fh=file(filepath,"rb")
+    fh=open(filepath,"rb")
 
     HeaderParams=ReadRAWHeader(fh)
     
