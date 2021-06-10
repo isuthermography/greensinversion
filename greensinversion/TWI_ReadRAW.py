@@ -13,7 +13,7 @@ def RAWfile_ReadHeaderLine(fh):
     
     byte=fh.read(1)
     accum=b""
-    while ord(byte) != 0 and byte!='\x0a':
+    while ord(byte) != 0 and byte!=b'\x0a':
         accum+=byte
         byte=fh.read(1)
         pass
@@ -21,8 +21,8 @@ def RAWfile_ReadHeaderLine(fh):
     if ord(byte)==0:
         return None
     
-    assert(byte=='\x0a') # linefeed: Only other way to escape above loop
-    assert(accum[-1]=='\x0d') # previous character should be a CR
+    assert(byte==b'\x0a') # linefeed: Only other way to escape above loop
+    assert(accum[-1:]==b'\x0d') # previous character should be a CR
     return accum[:-1]
 
 def ReadRAWHeader(fh):
@@ -38,7 +38,7 @@ def ReadRAWHeader(fh):
     while HeaderLine is not None:
         assert(b'=' in HeaderLine)
 
-        (ParamName,ParamValue)=HeaderLine.split('=',1)
+        (ParamName,ParamValue)=HeaderLine.split(b'=',1)
         Params[ParamName.decode('utf-8')]=ParamValue.decode('utf-8')
         
         HeaderLine=RAWfile_ReadHeaderLine(fh)
