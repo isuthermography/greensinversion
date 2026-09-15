@@ -2,6 +2,7 @@ import os
 import os.path
 import sys
 import collections
+import collections.abc
 import copy
 
 import numpy as np
@@ -328,7 +329,7 @@ def parallelperforminversionsteps(OpenCL_CTX,rowselects,inversions,inversionsful
     
     n_inputs = len(inputmats)
     
-    if not isinstance(tikparams,collections.Sequence) and not isinstance(tikparams,np.ndarray):
+    if not isinstance(tikparams,collections.abc.Sequence) and not isinstance(tikparams,np.ndarray):
         # single tikparam... broadcast it over all steps
         tikparams = [ tikparams ]*len(rowselects)
         pass
@@ -610,7 +611,7 @@ def performinversionsteps(rowselects,inversions,inversionsfull,inverses,nresults
             bestfit = np.dot(vi.T,np.dot(ui.T,residual[rowselect])*(1.0/si))
             pass
         else:
-            if isinstance(tikparam,collections.Sequence) or isinstance(tikparam,np.ndarray):
+            if isinstance(tikparam,collections.abc.Sequence) or isinstance(tikparam,np.ndarray):
                 # a list or similar
                 usetikparam=tikparam[cnt]
                 pass

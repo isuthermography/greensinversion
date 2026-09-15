@@ -193,11 +193,12 @@ def rununlocked(_dest_href,dc_dgsfile_href,dc_density_numericunits,dc_specifiche
     # # need pre-calculation of z_bnd to determine reflectors
     # z_bnd=np.arange(nz+1,dtype='d')*dz  # z boundary starts at zero
 
-    # reflectors=( (z_bnd[15],4,4),
-    #              (z_bnd[9],4,4),
-    #              (z_bnd[5],6,6),
-    #              (z_bnd[2],10,10))
-    
+    # reflectors=( (float(z_bnd[15]),4,4),
+    #              (float(z_bnd[9]),4,4),
+    #              (float(z_bnd[5]),6,6),
+    #              (float(z_bnd[2]),10,10))
+    if "np.float" in dc_inversion_reflectors_str:
+        raise ValueError(f"dc:inversion_reflectors string '{dc_inversion_reflectors_str:s}' contains np.float, which usually means that where you generate the string, you need to cast the values to native python floats, e.g. float(z_bnd[5])")
     reflectors_float=ast.literal_eval(dc_inversion_reflectors_str)
     
     # reflectors can just be reflectors_float but this is here to avoid
